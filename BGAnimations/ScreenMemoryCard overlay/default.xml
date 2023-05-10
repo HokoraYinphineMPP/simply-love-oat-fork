@@ -32,10 +32,9 @@
 	<Actor Type="Quad" OnCommand="%function(self)
 		self:hidden(1)
 		local texts = {
-			{'use a USB card', 'usbicon.png', 'to save scores &amp; preferences'},
 			{'use a USB card', 'usbicon.png', 'i forgor'},
 			{'don\'t forget', 'code.png', 'your glitch-lines.frag', glitchlines=true},
-			{'she', 'she.png', 'she', 0.5},
+			{'colon', 'colonthree.png', 'three', 0.5},
 			{'do you', 'dunno.png', 'remember'}
 		}
 		

@@ -1,4 +1,4 @@
-local lines = {'Oh No', 'penis', 'funy time', 'not DDR', 'weed!!!', 'toilet spin', '┃  ┃╻ ┃┃ ┃▁', 'lux mortis simulator', 'tung tiied launcher', 'In The Groove 3?!?!?!', 'Press alt-f4', 'Try pressing f3+i', '->', 'i video love games', 'i hate video games', 'EA Sports', 'Also try Stepmania 5', 'oatmealine fucking DIES', ':pensive:', 'The Phoenix is a 20', 'stepmania', 'play get fucked', '. ゥ ( .I\' .', 'picross', 'do u agree', 'Now on Steam', ':blank:', 'threatening', 'im scared'}
+local lines = {'not DDR', 'not FNF', '┃  ┃╻ ┃┃ ┃▁', 'In The Groove 3?!?!?!', 'Hokora Maid IRL when', 'hokora fucking DIES', 'maybe stepmania', 'https://hokora-yiff.services/'}
 
 math.randomseed(tonumber(os.date("%S")))
 math.random( 1, #lines )

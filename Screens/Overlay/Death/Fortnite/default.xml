@@ -1,4 +1,4 @@
 <ActorFrame Name="Fortnite"><children>
 	<Layer Type="Quad" />
-	<Layer File="_1.jpg" />
+	<Layer File="fortnite" />
 </children></ActorFrame>

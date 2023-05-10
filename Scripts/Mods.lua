@@ -158,16 +158,7 @@ function MaxLength(str,l) if string.len(str) > l then str = string.sub(str,0,l-3
 function RowMetric(b,a,r) if r then rowYNum = 0 rowYAdd = a rowYBase = b rowYOffTop = rowYBase + rowYAdd*0.5 return r elseif a then rowYNum = rowYNum + a end rowYNum = rowYNum + 1 if b ~= 'Exit' then rowYOffCenter = rowYBase + rowYAdd*(rowYNum+1+math.mod(rowYNum,2))/2 rowYOffBottom = rowYBase + rowYAdd*(rowYNum+1/2) end return rowYBase+rowYAdd*rowYNum end
 function SecondsToMSS(n) local t = SecondsToMSSMsMs(math.abs(n)) t = string.sub(t,0,string.len(t)-3) if tonumber(n) < 0 then t = '-' .. t end return t end
 function MSSMsMsToSeconds(t) return string.sub(t,string.len(t)-4,string.len(t)) + string.sub(t,1,string.len(t)-6)*60 end
-function ForceSongAndSteps()
-	if not GAMESTATE:GetCurrentSong() then
-		local song = SONGMAN:GetRandomSong()
-		if not song then return end
-		GAMESTATE:SetCurrentSong(song)
-		steps = song:GetAllSteps()
-		GAMESTATE:SetCurrentSteps(0,steps[1])
-		GAMESTATE:SetCurrentSteps(1,steps[1])
-	end
-end
+function ForceSongAndSteps() if not GAMESTATE:GetCurrentSong() then local song = SONGMAN:GetRandomSong() GAMESTATE:SetCurrentSong(song) steps = song:GetAllSteps() GAMESTATE:SetCurrentSteps(0,steps[1]) GAMESTATE:SetCurrentSteps(1,steps[1]) end end
 function Diffuse(self,c,n) if not c[4] then c[4] = 1 end if n == 1 then self:diffuseupperleft(c[1],c[2],c[3],c[4]) elseif n == 2 then self:diffuseupperright(c[1],c[2],c[3],c[4]) elseif n == 3 then self:diffuselowerleft(c[1],c[2],c[3],c[4]) elseif n == 4 then self:diffuselowerright(c[1],c[2],c[3],c[4]) else self:diffuse(c[1],c[2],c[3],c[4]) end end
 function ApplyMod(mod,pn,f) local m = mod if m then if f then m = f .. '% ' .. m end GAMESTATE:ApplyGameCommand('mod,'..m,pn) end end
 function CheckMod(pn,mod) return mod and GAMESTATE:PlayerIsUsingModifier(pn,mod) end
@@ -199,88 +190,13 @@ function ScreenEdit() EditMode = true; end
 function JudgmentInit()
 	
 	if FakeCombo == nil or not FakeCombo then
-		FakeCombo = {0,0}
+		FakeCombo = {0,0};
 	end
-	judge = {}
-	ghost = {}
-	for pn = 1,2 do
-		judge[pn] = {
-			0,0,0,0,0,0,0,0,0,
-			T = 0,
-			MaxDP = 0,
-			CurDP = 0,
-			Data = {},
-			Score = 0,
-			Steps = {},
-			Stream = {{{0,0}}}
-		}
-		GhostData(pn,'Decompress')
-		for i,v in ipairs(trackedStreams) do
-			judge[pn].Stream[i] = {}
-		end
-	end
-	for i,v in ipairs(holdJudgments) do
-		if i <= table.getn(holdJudgments)/2 then
-			if Player(1) then
-				v:aux(1)
-			else
-				v:aux(2)
-			end
-		else
-			if Player(2) then
-				v:aux(2)
-			else
-				v:aux(1)
-			end
-		end
-	end
-	local invisibleSettings = {'hidden', 1, 'diffusealpha', 0, 'zoom', 0, 'zoom2', 0, 'x', 9e9, 'y', 9e9, 'x2', 9e9, 'y2', 9e9}
-	for pn = 1,8 do
-		local px = Screen():GetChild('PlayerP'..pn)
-		local mpn = math.mod(pn - 1, 2) + 1
-		local judgeIndex = ModCustom.JudgmentFont[mpn]
-		local judgeName = judgmentFontList[judgeIndex]
-		if px then
-			px = px:GetChild('Judgment')
-			local pxc = px:GetChild('')
-			px:aux(mpn)
-			if judgeIndex ~= 1 then
-				pxc:Load( THEME:GetPath( EC_GRAPHICS, '', '_Judgments/'.. judgeName ))
-				-- special case for invisible judgment font
-				if judgeName == 'Invisible' then
-					-- if selected, use every method possible to hide the judgment sprite in case a file loads an alternate judgment font
-					-- maybe a bit overkill 
-					for _, actor in ipairs{px, pxc} do
-						for i = 1, #invisibleSettings, 2 do
-							method = invisibleSettings[i]
-							value = invisibleSettings[i + 1]
-							if px[method] then
-								px[method](px, value)
-							end
-						end
-					end
-					if FUCK_EXE then
-						for _, actor in ipairs{px, pxc} do
-							if actor.SetDrawFunction then
-								actor:SetDrawFunction(function() end)
-							end
-							if actor.SetUpdateFunction then
-								actor:SetUpdateFunction(function()
-									for i = 1, #invisibleSettings, 2 do
-										method = invisibleSettings[i]
-										value = invisibleSettings[i + 1]
-										if px[method] then
-											px[method](px, value)
-										end
-									end
-								end)
-							end
-						end
-					end
-				end
-			end
-		end
-	end
+	
+	judge = {}; ghost = {};
+	for pn = 1,2 do judge[pn] = {0,0,0,0,0,0,0,0,0, T = 0, MaxDP = 0, CurDP = 0, Data = {}, Score = 0, Steps = {}, Stream = {{{0,0}}} } GhostData(pn,'Decompress') for i,v in ipairs(trackedStreams) do judge[pn].Stream[i] = {} end end
+	for i,v in ipairs(holdJudgments) do if i <= table.getn(holdJudgments)/2 then if Player(1) then v:aux(1) else v:aux(2) end else if Player(2) then v:aux(2) else v:aux(1) end end end
+	for pn = 1,2 do local px = Screen():GetChild('PlayerP'..pn) if px then px = px:GetChild('Judgment'):GetChild(''); px:aux(pn); if ModCustom.JudgmentFont[pn] ~= 1 then px:Load( THEME:GetPath( EC_GRAPHICS, '', '_Judgments/'..judgmentFontList[ModCustom.JudgmentFont[pn]] )) end end end
 end
 
 function GameplayUpdate(self)
@@ -674,8 +590,6 @@ function InitializeMods()
 	ResetScores()
 	TimedSet.Reset()
 	LoadFromProfile()
-	ModInputTypeCheck()
-	ModInputTypeApply()
 	if Profile(0).TimedSets and not GAMESTATE:IsEventMode() then GAMESTATE:SetTemporaryEventMode(true) end
 	GAMESTATE:SetEnv('Mods',1)
 end
@@ -1375,38 +1289,16 @@ function DifficultyList()
 	end
 --  q is the index of the last entry of difficultyList. We need to save this instead of using table.getn because when you have "FixedDifficultyRow" you often have nil values in the middle of the table.
 	for n=1,2 do if Player(n) then
-		for i=1,q do
-			if difficultyList[i] == GAMESTATE:GetCurrentSteps(n-1) then
-				listPointer[n] = i
-			end
-		end
-		if listPointer[n] <= c then
-			listPointerY[n] = listPointer[n]
-		elseif listPointer[n] >= (q+1)-(r-c) then
-			listPointerY[n] = listPointer[n]-q+r
-		else
-			listPointerY[n] = c
-		end
+		for i=1,q do if difficultyList[i] == GAMESTATE:GetCurrentSteps(n-1) then listPointer[n] = i end end
+		if listPointer[n] <= c then listPointerY[n] = listPointer[n] elseif listPointer[n] >= (q+1)-(r-c) then listPointerY[n] = listPointer[n]-q+r else listPointerY[n] = c end
 		if FixedDifficultyRows() then listPointerY[n] = listPointer[n] end
 	end end
 	if not twoDifficultyListRows and GAMESTATE:GetNumPlayersEnabled() == 2 and q > r then
 		listPointerY[1] = math.max(math.min(math.ceil((r+listPointer[1]-listPointer[2])/2),b),a)
 		listPointerY[2] = math.max(math.min(math.ceil((r+listPointer[2]-listPointer[1])/2),b),a)
-		if listPointer[1] + listPointer[2] < r+2 and listPointer[1] <= b and listPointer[2] <= b then
-			listPointerY[1] = listPointer[1]
-			listPointerY[2] = listPointer[2]
-		end
-		if listPointer[1] + listPointer[2] > 2*(q+1)-(r+2) and listPointer[1] >= (q+1)-b and listPointer[2] >= (q+1)-b then
-			listPointerY[1] = listPointer[1]-q+r
-			listPointerY[2] = listPointer[2]-q+r
-		end
-		for i=1,2 do
-			if listPointer[i] <= a then
-				listPointerY[i] = listPointer[i]
-			elseif listPointer[i] >= (q+1)-a then
-				listPointerY[i] = listPointer[i]-q+r
-			end
-		end
+		if listPointer[1] + listPointer[2] < r+2 and listPointer[1] <= b and listPointer[2] <= b then listPointerY[1] = listPointer[1]; listPointerY[2] = listPointer[2] end
+		if listPointer[1] + listPointer[2] > 2*(q+1)-(r+2) and listPointer[1] >= (q+1)-b and listPointer[2] >= (q+1)-b then listPointerY[1] = listPointer[1]-q+r; listPointerY[2] = listPointer[2]-q+r end
+		for i=1,2 do if listPointer[i] <= a then listPointerY[i] = listPointer[i] elseif listPointer[i] >= (q+1)-a then listPointerY[i] = listPointer[i]-q+r end end
 	end
 end
 
@@ -1420,16 +1312,8 @@ function DifficultyListRow(self,k,t,pn)
 	
 	self:stopeffect()
 	
-	if Player(1) and listPointer[1] then
-		d[1] = k+listPointer[1]-listPointerY[1]
-	else
-		d[1] = 0
-	end
-	if Player(2) and listPointer[2] then
-		d[2] = k+listPointer[2]-listPointerY[2]
-	else
-		d[2] = 0
-	end
+	if Player(1) then d[1] = k+listPointer[1]-listPointerY[1] else d[1] = 0 end
+	if Player(2) then d[2] = k+listPointer[2]-listPointerY[2] else d[2] = 0 end
 	if not GAMESTATE:GetCurrentSong() then
 		if t == 'difficulty' then if k - 1 < 5 then self:settext(string.upper(DifficultyToThemedString( k - 1 ))) self:diffuse(DifficultyColorRGB( k - 1 )) else self:settext('') end end
 		if t == 'meter' then if k - 1 < 5 then self:settext(b) self:diffuse(DifficultyColorRGB( k - 1 )) else self:settext('') end end

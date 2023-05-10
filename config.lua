@@ -32,10 +32,8 @@ layout:
         QwertyUS
         QwertyUK
         QwertyNO
-        QwertzSwissFR
-        QwertzSwissDE
 
-    You can add more in /(theme)/lua/layout.lua
+    You can add more in /Overlay/lua/keyboard.lua
 
 console:
     Hold ctrl+<key> to open the console
